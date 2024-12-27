@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const ServerInputHttp = () => {
@@ -10,26 +12,25 @@ const ServerInputHttp = () => {
         </div>
         <Tabs defaultValue='local' className='z-40 bg-white p-3'>
           <TabsList className='grid w-full grid-cols-2'>
-            <TabsTrigger value='local'>Local</TabsTrigger>
+            <TabsTrigger value='local'>Development</TabsTrigger>
             <TabsTrigger value='deployed' disabled>
-              Deployed
+              Production
             </TabsTrigger>
           </TabsList>
-          <TabsContent value='local'>
+          <TabsContent value='local' className='mt-4'>
             <div className='flex gap-2'>
-              <input
-                className='w-[80px] rounded-[5px] border p-3 text-center focus:outline-none'
-                value={'http://'}
+              <Input
+                className='w-[80px] bg-zinc-50 text-center text-zinc-800'
+                value='http://'
                 disabled
               />
-              <input
-                className='w-full rounded-[5px] border p-3 placeholder-gray-200 focus:outline-none'
-                placeholder='localhost:8080'
-                disabled
+              <Input
+                className='flex-1 focus-visible:ring-zinc-400'
+                placeholder='localhost:8080/api/v1'
               />
-              <button className='w-16 rounded-[5px] border text-[12px]'>
-                Go!
-              </button>
+              <Button className='w-16 bg-zinc-800 text-xs text-white hover:bg-zinc-700'>
+                Save
+              </Button>
             </div>
           </TabsContent>
         </Tabs>

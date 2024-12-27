@@ -3,11 +3,9 @@ import { useState } from 'react';
 import Overlay from './Overlay';
 import TutorialCard from './components/TutorialCard';
 import CRUD from './components/dummy/CRUD';
-import ExitUrl from './components/dummy/FlexNotDomainBox';
 import ServerInputHttp from './components/dummy/ServerInputHttp';
 import ServerInputHttps from './components/dummy/ServerInputHttps';
 import TutorialLayout from './components/dummy/TutorialLayout';
-import TutorialLayoutAddedDomain from './components/dummy/TutorialLayoutAddedDomain';
 
 const TutorialPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -22,7 +20,6 @@ const TutorialPage = () => {
             setCurrentStep={setCurrentStep}
             className='right-12 top-24'
           />
-          <ExitUrl />
         </TutorialLayout>
       </>
     );
@@ -34,7 +31,7 @@ const TutorialPage = () => {
           <TutorialCard
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
-            className='left-[30%] top-[20%]'
+            className='left-[30%] top-[18%]'
           />
           <ServerInputHttp />
         </TutorialLayout>
@@ -58,68 +55,68 @@ const TutorialPage = () => {
     return (
       <>
         <Overlay />
-        <TutorialLayoutAddedDomain currentStep={currentStep}>
+        <TutorialLayout currentStep={currentStep}>
           <TutorialCard
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
             className='right-12 top-24'
           />
-        </TutorialLayoutAddedDomain>
+        </TutorialLayout>
       </>
     );
   else if (currentStep === 4)
     return (
       <>
         <Overlay />
-        <TutorialLayoutAddedDomain currentStep={currentStep}>
+        <TutorialLayout currentStep={currentStep}>
           <TutorialCard
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
             className='right-40 top-24'
           />
           <CRUD currentStep={currentStep} />
-        </TutorialLayoutAddedDomain>
+        </TutorialLayout>
       </>
     );
   else if (currentStep === 5)
     return (
       <>
         <Overlay />
-        <TutorialLayoutAddedDomain currentStep={currentStep}>
+        <TutorialLayout currentStep={currentStep}>
           <TutorialCard
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
             className='left-[42%] top-8'
           />
           <CRUD currentStep={currentStep} />
-        </TutorialLayoutAddedDomain>
+        </TutorialLayout>
       </>
     );
   else if (currentStep === 6)
     return (
       <>
         <Overlay />
-        <TutorialLayoutAddedDomain currentStep={currentStep}>
+        <TutorialLayout currentStep={currentStep}>
           <TutorialCard
             currentStep={currentStep}
             setCurrentStep={setCurrentStep}
             className='right-10 top-24'
           />
           <CRUD currentStep={currentStep} />
-        </TutorialLayoutAddedDomain>
+        </TutorialLayout>
       </>
     );
   return (
     <>
       <Overlay />
-      <TutorialLayoutAddedDomain currentStep={currentStep}>
+      <TutorialLayout currentStep={currentStep}>
         <TutorialCard
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
           className='bottom-24 left-20'
         />
         <CRUD currentStep={currentStep} />
-      </TutorialLayoutAddedDomain>
+      </TutorialLayout>
     </>
   );
 };

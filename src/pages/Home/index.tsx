@@ -11,7 +11,7 @@ const Home = () => {
 
         {/* Main Description */}
         <p className='animate-fade-in-delay text-center text-lg text-zinc-500'>
-          SSAFY 12기 서울 15반의 백엔드 개발자들을 위한 API 테스트 플랫폼입니다.
+          SSAFY의 백엔드 개발자들을 위한 API 테스트 플랫폼입니다.
         </p>
 
         {/* Feature Cards */}

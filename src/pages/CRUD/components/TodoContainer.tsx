@@ -59,7 +59,7 @@ const TodoContainer = () => {
     <MainLayout.Root>
       <MainLayout.Header
         title='할 일 관리'
-        description='효율적으로 할 일을 관리하고 추적하세요.'
+        description='투두리스트 구현을 통해 CRUD 동작을 확인해보세요.'
       >
         <InfoModal file='crud' />
       </MainLayout.Header>
