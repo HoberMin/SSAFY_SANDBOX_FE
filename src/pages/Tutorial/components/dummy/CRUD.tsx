@@ -1,3 +1,7 @@
+import { FileText } from 'lucide-react';
+
+import MainLayout from '@/components/MainLayout';
+import { Button } from '@/components/ui/button';
 import TodoInput from '@/pages/CRUD/components/TodoInput';
 import TodoItem from '@/pages/CRUD/components/TodoItem';
 import { cn } from '@/utils/cn';
@@ -15,43 +19,43 @@ const dummyData = {
 interface Tprops {
   currentStep: number;
 }
+
 const CRUD = ({ currentStep }: Tprops) => {
-  console.log(currentStep);
   return (
-    <>
-      <div className='flex justify-between p-10 pb-0 text-2xl font-bold'>
-        <span>CRUD</span>
-        <div
+    <MainLayout.Root>
+      <MainLayout.Header
+        title='할 일 관리'
+        description='투두리스트 구현을 통해 CRUD 동작을 확인해보세요.'
+      >
+        <Button
+          variant='outline'
           className={cn(
-            'flex h-10 w-20 items-center justify-center gap-[10px] rounded bg-[#262E3F] text-sm font-medium text-white',
+            'pointer-events-none gap-2 border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50',
             currentStep === 4 ? 'z-40' : 'z-10',
           )}
         >
+          <FileText className='pointer-events-none h-4 w-4' />
           API 명세
-        </div>
-      </div>
-      <main className='flex w-full grow flex-col justify-center'>
-        <div
-          className={cn(
-            'mx-auto flex w-[600px] flex-col gap-5 bg-white p-2',
-            currentStep === 5 ? 'z-40' : 'z-10',
-          )}
-        >
+        </Button>
+      </MainLayout.Header>
+
+      <MainLayout.Content className={currentStep === 5 ? 'z-40' : 'z-10'}>
+        <div className='pointer-events-none space-y-6 p-4'>
           <TodoInput />
-          <div className='max-h-[600px] overflow-x-hidden overflow-y-hidden overflow-y-scroll rounded-[8px] border border-gray-200 shadow-xl'>
+
+          <div className='max-h-[600px] overflow-y-auto rounded-lg border border-zinc-200 bg-white'>
             {dummyData.todos.map(({ content, completed, id }) => (
-              <TodoItem
-                checked={completed}
-                todo={content}
-                todoId={id}
+              <div
                 key={`${content}-${id}`}
-              />
+                className='border-b border-zinc-100 transition-colors duration-200 last:border-b-0 hover:bg-zinc-50'
+              >
+                <TodoItem checked={completed} todo={content} todoId={id} />
+              </div>
             ))}
           </div>
-          <span className='mt-[40px]'>Made By HoberMin / songhaeunsong</span>
         </div>
-      </main>
-    </>
+      </MainLayout.Content>
+    </MainLayout.Root>
   );
 };
 

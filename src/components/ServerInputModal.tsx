@@ -68,14 +68,14 @@ const ServerInputModal = () => {
           className='border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50'
           onClick={() => setIsOpenedModal(true)}
         >
-          API Endpoint
+          Edit Base URL
         </Button>
       </DialogTrigger>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle className='text-zinc-800'>API Endpoint</DialogTitle>
+          <DialogTitle className='text-zinc-800'>Edit Base URL</DialogTitle>
           <DialogDescription className='text-sm text-zinc-500'>
-            개발 또는 배포된 서버의 API 엔드포인트를 입력해주세요.
+            개발 또는 배포된 서버의 Base URL를 입력해주세요.
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue='local' className='mt-4'>
@@ -96,7 +96,7 @@ const ServerInputModal = () => {
           <TabsContent value='local' className='mt-4'>
             <div className='flex gap-2'>
               <Input
-                className='w-[80px] bg-zinc-50 text-center text-zinc-500'
+                className='w-[80px] bg-zinc-50 text-center text-zinc-800'
                 value='http://'
                 disabled
               />
@@ -118,12 +118,12 @@ const ServerInputModal = () => {
           <TabsContent value='deployed' className='mt-4'>
             <div className='flex gap-2'>
               <Input
-                className='w-[80px] bg-zinc-50 text-center text-zinc-500'
+                className='w-[80px] bg-zinc-50 text-center text-zinc-800'
                 value='https://'
                 disabled
               />
               <Input
-                className='flex-1 focus-visible:ring-zinc-400'
+                className='flex-1 focus-visible:ring-zinc-300'
                 value={deployedURL}
                 onChange={e => handleInputChange(e, setDeployedURL)}
                 onKeyDown={activeEnterDeployedURL}

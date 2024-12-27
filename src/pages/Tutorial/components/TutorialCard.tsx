@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import useDomainStore from '@/store';
 import { cn } from '@/utils/cn';
 
 const tutorialData = [
@@ -27,7 +28,7 @@ const tutorialData = [
   },
   {
     title: 'My Base URL',
-    content: '커서를 올려 자신이 입력한 도메인을 확인할 수 있습니다.',
+    content: '자신이 입력한 도메인을 확인할 수 있습니다.',
   },
   {
     title: '명세 및 기대 효과',
@@ -56,6 +57,7 @@ interface Tprops {
 }
 const TutorialCard = ({ currentStep, setCurrentStep, className }: Tprops) => {
   const navigate = useNavigate();
+  const { setDomain } = useDomainStore();
 
   const handleNext = () => {
     if (currentStep < tutorialData.length - 1) {
@@ -71,6 +73,7 @@ const TutorialCard = ({ currentStep, setCurrentStep, className }: Tprops) => {
 
   const handleExit = () => {
     localStorage.setItem('tutorial_end', 'end');
+    setDomain('');
     navigate('/');
     setCurrentStep(0);
   };
