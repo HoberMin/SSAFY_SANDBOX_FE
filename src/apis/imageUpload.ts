@@ -1,41 +1,72 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { useToast } from '@/components/toast/use-toast';
 import { Domain } from '@/store';
 
 interface ImageUploadResponse {
+  id: number;
   imageUrl: string;
 }
 
-const imageUpload = async (image: File, domain: Domain) => {
-  const formData = new FormData();
+interface PresignedURLResponse {
+  presignedUrl: string;
+}
 
-  formData.append('image', image);
-
-  return await fetch(`${domain}/image`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    body: formData,
-  })
+const getImageURL = async (domain: Domain) =>
+  await fetch(`${domain}/upload`)
     .then(res => res.json())
     .then(data => data as ImageUploadResponse);
-};
 
-export const usePostImageUploadAPI = (domain: Domain) => {
-  const { toast } = useToast();
+const getPreSignedURL = async (domain: Domain) =>
+  await fetch(`${domain}/upload/presigned-url`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(res => res.json())
+    .then(data => data as PresignedURLResponse);
 
-  const { mutateAsync } = useMutation({
-    mutationFn: (image: File) => imageUpload(image, domain),
-    onError: () => {
-      toast({
-        variant: 'destructive',
-        title: 'POST 요청 에러',
-        description: 'Network탭을 확인해주세요 !',
-      });
+const putPresignedURL = async (preSignedURL: string, file: File) =>
+  await fetch(preSignedURL, {
+    method: 'PUT',
+    body: file,
+    headers: {
+      'Content-Type': file.type,
     },
   });
 
-  return mutateAsync;
+const postImageUpload = async (domain: Domain) =>
+  await fetch(`${domain}/upload/image`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+export const useGetImageAPI = (domain: Domain) =>
+  useQuery({
+    queryKey: ['image', domain],
+    queryFn: () => getImageURL(domain),
+  });
+
+export const postImageUrlAPI = (domain: Domain) => {
+  const { mutate } = useMutation({
+    mutationFn: () => postImageUpload(domain),
+  });
+
+  return mutate;
+};
+
+export const getPreSignedUrlAPI = (domain: Domain) =>
+  useQuery({
+    queryKey: ['preSignedURL', domain],
+    queryFn: () => getPreSignedURL(domain),
+  });
+
+export const putImageAPI = (presignedUrl: string) => {
+  const { mutate } = useMutation({
+    mutationFn: (file: File) => putPresignedURL(presignedUrl, file),
+  });
+
+  return mutate;
 };
