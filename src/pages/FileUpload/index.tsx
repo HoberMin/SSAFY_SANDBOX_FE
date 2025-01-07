@@ -120,7 +120,7 @@ const FileUploader = () => {
     if (preSignedData?.presignedUrl) {
       return (
         <img
-          src={preSignedData.presignedUrl}
+          src={preSignedData.presignedUrl.split('?')[0]}
           alt='업로드된 이미지'
           className='h-32 w-32 rounded-lg border border-gray-200 object-cover shadow-sm'
         />
