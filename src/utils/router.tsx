@@ -3,6 +3,7 @@ import { Outlet, createBrowserRouter } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import CRUD from '@/pages/CRUD';
 import Email from '@/pages/Email';
+import FCMPage from '@/pages/FCM';
 // import FCMPage from '@/pages/FCM';
 import FileUploader from '@/pages/FileUpload';
 import Home from '@/pages/Home';
@@ -61,10 +62,10 @@ export const router = createBrowserRouter([
         path: '/imageuploader',
         element: <FileUploader />,
       },
-      // {
-      //   path: '/fcm',
-      //   element: <FCMPage />,
-      // },
+      {
+        path: '/fcm',
+        element: <FCMPage />,
+      },
     ],
   },
   {
