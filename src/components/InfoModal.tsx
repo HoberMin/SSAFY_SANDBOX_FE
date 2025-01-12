@@ -30,7 +30,7 @@ const InfoModal = ({ file }: { file: string }) => {
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button
           variant='outline'
           className='gap-2 border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50'

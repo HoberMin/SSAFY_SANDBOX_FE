@@ -1,6 +1,11 @@
-import { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef } from 'react';
 
-import { usePostImageUploadAPI } from '@/apis/imageUpload';
+import {
+  getPreSignedUrlAPI,
+  postImageUrlAPI,
+  putImageAPI,
+  useGetImageAPI,
+} from '@/apis/imageUpload';
 import NotDomainAlertBox from '@/components/AlertBox/NotDomainAlertBox';
 import MainLayout from '@/components/MainLayout';
 import { useToast } from '@/components/toast/use-toast';
@@ -10,62 +15,128 @@ import { Label } from '@/components/ui/label';
 import useDomainStore from '@/store';
 
 const FileUploader = () => {
-  const [profile, setProfile] = useState<null | string>(null); // 이미지 상태
-  const inputElement = useRef<HTMLInputElement | null>(null); // 파일 입력 Ref
-  const { domain } = useDomainStore(); // 도메인 상태
-  const imageUploadAPI = usePostImageUploadAPI(domain); // 이미지 업로드 API
-  const { toast } = useToast(); // Toast 알림
+  const inputElement = useRef<HTMLInputElement | null>(null);
+  const { domain } = useDomainStore();
+  const { toast } = useToast();
 
-  // 이미지 삭제 핸들러
+  const {
+    data: currentImage,
+    isLoading: isLoadingImage,
+    isError: isCurrentImageError,
+  } = useGetImageAPI(domain);
+
+  const {
+    data: preSignedData,
+    isLoading: isLoadingPresigned,
+    isError: isPresignedError,
+  } = getPreSignedUrlAPI(domain);
+
+  const putImage = putImageAPI(preSignedData?.presignedUrl || '');
+  const extractBaseUrl = (url: string) => url.split('?')[0];
+  const postImageUrl = postImageUrlAPI(
+    preSignedData?.presignedUrl
+      ? extractBaseUrl(preSignedData.presignedUrl)
+      : '',
+  );
+
+  useEffect(() => {
+    if (isCurrentImageError) {
+      toast({
+        title: '이미지 로드 실패',
+        description: '현재 이미지를 불러오는데 실패했습니다.',
+        variant: 'destructive',
+      });
+    }
+  }, [isCurrentImageError]);
+
+  useEffect(() => {
+    if (isPresignedError) {
+      toast({
+        title: '업로드 준비 실패',
+        description: '이미지 업로드 준비 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      });
+    }
+  }, [isPresignedError]);
+
   const handleImageRemove = () => {
-    setProfile(null);
     if (inputElement.current) {
       inputElement.current.value = '';
     }
   };
 
-  // 이미지 업로드 핸들러
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const image = e.target.files[0];
-      const reader = new FileReader();
-      reader.readAsDataURL(image);
-      reader.onloadend = () => {
-        setProfile(reader.result as string);
-      };
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: '파일 크기 초과',
+        description: '5MB 이하의 이미지만 업로드 가능합니다.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      putImage(file);
+      toast({
+        title: '이미지 업로드 완료',
+        description: '이미지가 성공적으로 업로드되었습니다.',
+      });
+    } catch (error) {
+      toast({
+        title: '이미지 업로드 실패',
+        description: '이미지 업로드 중 오류가 발생했습니다.',
+        variant: 'destructive',
+      });
+      handleImageRemove();
     }
   };
 
-  // 이미지 전송 핸들러
   const handleSubmitImage = async () => {
-    const file = inputElement.current?.files?.[0];
-    if (!file) return;
     try {
-      const { imageUrl } = await imageUploadAPI(file); // API 호출
+      postImageUrl();
       toast({
-        title: '이미지 전송 성공!',
-        description: `이미지가 성공적으로 업로드되었습니다: ${imageUrl}`,
+        title: '이미지 전송 성공',
+        description: '이미지가 성공적으로 저장되었습니다.',
       });
-      handleImageRemove(); // 성공 후 초기화
+      handleImageRemove();
     } catch (error) {
       toast({
         title: '이미지 전송 실패',
-        description: '이미지 업로드 중 문제가 발생했습니다.',
+        description: '이미지 저장 중 오류가 발생했습니다.',
+        variant: 'destructive',
       });
+      console.error('Save error:', error);
     }
   };
 
-  // 이미지 미리보기 렌더링 함수
   const renderImagePreview = () => {
-    if (profile) {
+    if (isLoadingImage) {
+      return <div className='loading-spinner' />;
+    }
+
+    if (preSignedData?.presignedUrl) {
       return (
         <img
-          src={profile}
-          alt='프로필 이미지'
+          src={preSignedData.presignedUrl.split('?')[0]}
+          alt='업로드된 이미지'
           className='h-32 w-32 rounded-lg border border-gray-200 object-cover shadow-sm'
         />
       );
     }
+
+    if (currentImage?.imageUrl) {
+      return (
+        <img
+          src={currentImage.imageUrl}
+          alt='현재 이미지'
+          className='h-32 w-32 rounded-lg border border-gray-200 object-cover shadow-sm'
+        />
+      );
+    }
+
     return (
       <div className='flex h-32 w-32 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-400'>
         <span>이미지 미리보기</span>
@@ -84,6 +155,11 @@ const FileUploader = () => {
     );
   }
 
+  const isImageSelectDisabled = isPresignedError || isLoadingPresigned;
+
+  const isUploadDisabled =
+    !preSignedData?.presignedUrl || isLoadingPresigned || isPresignedError;
+
   return (
     <MainLayout.Root>
       <MainLayout.Header
@@ -92,26 +168,33 @@ const FileUploader = () => {
       />
       <MainLayout.Content>
         <div className='mx-auto flex w-full max-w-md flex-col items-center gap-6 rounded-lg bg-white p-6 shadow'>
-          {/* 이미지 미리보기 */}
           {renderImagePreview()}
 
-          {/* 파일 업로드 및 삭제 */}
           <div className='flex items-center gap-4'>
             <Label
               htmlFor='picture'
-              className='cursor-pointer rounded-md border px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-100'
+              className={`rounded-md border px-4 py-2 text-sm font-medium transition ${
+                isImageSelectDisabled
+                  ? 'cursor-not-allowed bg-gray-100 text-gray-400'
+                  : 'cursor-pointer bg-white text-gray-700 shadow-sm hover:bg-gray-50'
+              }`}
             >
               이미지 선택
             </Label>
             <Label
-              onClick={handleImageRemove}
-              className={`cursor-pointer rounded-md border px-4 py-2 text-sm font-medium ${profile ? 'text-red-500 hover:bg-red-50' : 'cursor-not-allowed text-gray-400'}`}
+              onClick={
+                preSignedData?.presignedUrl ? handleImageRemove : undefined
+              }
+              className={`rounded-md border px-4 py-2 text-sm font-medium transition ${
+                preSignedData?.presignedUrl
+                  ? 'cursor-pointer text-red-500 hover:bg-red-50'
+                  : 'cursor-not-allowed text-gray-400'
+              }`}
             >
               이미지 삭제
             </Label>
           </div>
 
-          {/* 숨겨진 파일 입력 */}
           <Input
             id='picture'
             type='file'
@@ -119,16 +202,16 @@ const FileUploader = () => {
             accept='image/*'
             className='hidden'
             onChange={handleImageUpload}
+            disabled={isImageSelectDisabled}
           />
 
-          {/* 전송 버튼 */}
           <Button
             onClick={handleSubmitImage}
-            disabled={!profile} // 프로필이 없으면 비활성화
-            className={`w-full rounded-md px-4 py-2 font-medium text-white ${
-              profile
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'cursor-not-allowed bg-gray-300'
+            disabled={isUploadDisabled}
+            className={`w-full rounded-md px-4 py-2 font-medium text-white transition ${
+              isUploadDisabled
+                ? 'cursor-not-allowed bg-gray-300'
+                : 'bg-blue-500 hover:bg-blue-600'
             }`}
           >
             이미지 전송

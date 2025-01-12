@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 
-import { FileText, Home, Image, Key, Mail } from 'lucide-react';
+import { Bell, FileText, Home, Image, Key, Mail } from 'lucide-react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 
 import useDomainStore from '@/store';
@@ -23,7 +23,7 @@ const menuItems = [
     label: 'Image Uploader',
     icon: <Image className='w-5 h-5' />,
   },
-  // { path: '/fcm', label: 'FCM', icon: <Bell className='w-5 h-5' /> },
+  { path: '/fcm', label: 'FCM', icon: <Bell className='h-5 w-5' /> },
 ] as const;
 
 const Layout = ({ children }: PropsWithChildren) => {
