@@ -46,7 +46,9 @@ export const OAuthTypeMenu = () => {
         <Button variant='outline'>{dropdownMenuItems[tokenType]}</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='w-56'>
-        <DropdownMenuLabel>인증 정보 전달 방식</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          {`토큰 사용 방식\n(RefreshToken/AccessToken)`}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {dropdownMenuItems.map((_, index) => (
           <DropdownMenuCheckboxItem
