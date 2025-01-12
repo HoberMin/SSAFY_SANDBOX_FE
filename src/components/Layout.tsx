@@ -10,20 +10,20 @@ import DomainDisplay from './DomainTooltip';
 import ServerInputModal from './ServerInputModal';
 
 const menuItems = [
-  { path: '/crud', label: 'CRUD', icon: <Home className='h-5 w-5' /> },
+  { path: '/crud', label: 'CRUD', icon: <Home className='w-5 h-5' /> },
   {
     path: '/paging/offset/1',
     label: 'Paging',
-    icon: <FileText className='h-5 w-5' />,
+    icon: <FileText className='w-5 h-5' />,
   },
-  { path: '/email', label: 'Email', icon: <Mail className='h-5 w-5' /> },
-  { path: '/oauth/1', label: 'OAuth', icon: <Key className='h-5 w-5' /> },
+  { path: '/email', label: 'Email', icon: <Mail className='w-5 h-5' /> },
+  { path: '/oauth', label: 'OAuth', icon: <Key className='w-5 h-5' /> },
   {
     path: '/imageuploader',
     label: 'Image Uploader',
-    icon: <Image className='h-5 w-5' />,
+    icon: <Image className='w-5 h-5' />,
   },
-  // { path: '/fcm', label: 'FCM', icon: <Bell className='h-5 w-5' /> },
+  // { path: '/fcm', label: 'FCM', icon: <Bell className='w-5 h-5' /> },
 ] as const;
 
 const Layout = ({ children }: PropsWithChildren) => {
@@ -46,7 +46,7 @@ const Layout = ({ children }: PropsWithChildren) => {
   };
 
   return (
-    <div className='flex h-screen flex-col'>
+    <div className='flex flex-col h-screen'>
       <header className='flex items-center justify-between border-b bg-white p-[20px] shadow-sm'>
         <Link to='/'>
           <span className='text-2xl font-bold text-zinc-800'>
@@ -60,7 +60,7 @@ const Layout = ({ children }: PropsWithChildren) => {
       </header>
       <div className='flex w-full grow'>
         <nav className='flex h-full min-w-[200px] flex-col border-r bg-white py-[20px]'>
-          <div className='flex grow flex-col gap-2 px-3 text-zinc-500'>
+          <div className='flex flex-col gap-2 px-3 grow text-zinc-500'>
             {menuItems.map(item => (
               <Link key={item.path} to={item.path}>
                 <div
@@ -86,12 +86,12 @@ const Layout = ({ children }: PropsWithChildren) => {
                   : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900',
               )}
             >
-              <FileText className='h-5 w-5' />
+              <FileText className='w-5 h-5' />
               <span>Quality Assurance</span>
             </div>
           </Link>
         </nav>
-        <div className='flex w-full flex-col bg-white'>{children}</div>
+        <div className='flex flex-col w-full bg-white'>{children}</div>
       </div>
     </div>
   );

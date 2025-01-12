@@ -30,10 +30,6 @@ export const router = createBrowserRouter([
         element: <CRUD />,
       },
       {
-        path: '/oauth/:oauthId',
-        element: <OAuth />,
-      },
-      {
         path: '/oauth',
         element: <OAuth />,
       },
