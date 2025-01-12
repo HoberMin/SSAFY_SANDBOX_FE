@@ -1,5 +1,7 @@
 import { HttpResponse, http } from 'msw';
 
+import { setAccessToken } from '@/apis/authentication';
+
 const userInfo = {
   nickname: null as string | null,
 };
@@ -9,22 +11,19 @@ const tokens = {
   refreshToken: '',
 };
 
-export const authHandler = [
-  http.post('/oauth/auth', async ({ request }) => {
+export const authHeaderHandler = [
+  http.post('/oauth/authorization/auth', async ({ request }) => {
     const { code } = (await request.json()) as { code: string };
 
     if (typeof code === 'string') {
-      tokens.accessToken = 'abcd';
-      tokens.refreshToken = 'abc-12323';
-      userInfo.nickname = '하은';
+      tokens.accessToken = 'abcd-header';
+      tokens.refreshToken = 'abc-12323-header';
+      userInfo.nickname = '하은-header';
 
       return HttpResponse.json(
-        { accessToken: tokens.accessToken },
+        { accessToken: tokens.accessToken, refreshToken: tokens.refreshToken },
         {
           status: 201,
-          headers: {
-            'Set-Cookie': `refreshToken=${tokens.refreshToken}; HttpOnly`,
-          },
         },
       );
     }
@@ -32,7 +31,7 @@ export const authHandler = [
     return HttpResponse.json({ message: '에러입니다.' }, { status: 400 });
   }),
 
-  http.get('/oauth/member', () => {
+  http.get('/oauth/authorization/member', () => {
     return HttpResponse.json(
       { nickname: userInfo.nickname },
       {
@@ -44,8 +43,9 @@ export const authHandler = [
     );
   }),
 
-  http.post('/oauth/logout', ({ cookies }) => {
-    if (!cookies.refreshToken) {
+  http.post('/oauth/authorization/logout', () => {
+    const refreshToken = localStorage.getItem('refreshToken-storage');
+    if (!refreshToken) {
       return HttpResponse.json({ message: 'Unauthorized' }, { status: 403 });
     }
 
@@ -53,16 +53,18 @@ export const authHandler = [
     tokens.refreshToken = '';
     userInfo.nickname = null;
 
+    localStorage.removeItem('refreshToken-storage');
+    setAccessToken('');
+
     return HttpResponse.json({
       status: 200,
-      headers: {
-        'Set-Cookie': 'refreshToken=; HttpOnly; Max-Age=0',
-      },
     });
   }),
 
-  http.get('/oauth/reissue', ({ cookies }) => {
-    if (!cookies.refreshToken || cookies.refreshToken !== tokens.refreshToken) {
+  http.get('/oauth/authorization/reissue', () => {
+    const refreshToken = localStorage.getItem('refreshToken-storage');
+
+    if (!refreshToken || refreshToken !== tokens.refreshToken) {
       return HttpResponse.json(
         {
           code: 'ERR_MISSING_ACCESS_TOKEN',
@@ -73,6 +75,7 @@ export const authHandler = [
     }
 
     tokens.accessToken = 'new-abcd';
+    setAccessToken('new-abcd-header');
 
     return HttpResponse.json(
       { accessToken: tokens.accessToken },

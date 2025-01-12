@@ -1,4 +1,6 @@
+import { authCookieHandler } from './authCookieHandler';
 import { authHandler } from './authHandler';
+import { authHeaderHandler } from './authHeaderHandler';
 import { emailHandler } from './emailHandler';
 import { FCMHandler } from './fcmHandler';
 import { pagingHandler } from './pagingHandler';
@@ -9,5 +11,7 @@ export const handlers = [
   ...todoHandler,
   ...emailHandler,
   ...authHandler,
+  ...authCookieHandler,
+  ...authHeaderHandler,
   ...pagingHandler,
 ];
