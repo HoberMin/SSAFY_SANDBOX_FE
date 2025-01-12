@@ -37,9 +37,9 @@ const OAuthAuthorization = () => {
   };
 
   return (
-    <div className='p-4 space-y-6'>
-      <main className='flex flex-col justify-center w-full h-full gap-5'>
-        <div className='mx-auto flex w-[600px] flex-col items-center'>
+    <div className='space-y-6 p-4'>
+      <main className='flex h-full w-full flex-col items-center justify-center gap-5'>
+        <div className='flex w-[600px] flex-col items-center'>
           {nickname ? (
             <div className='flex gap-5'>
               <button

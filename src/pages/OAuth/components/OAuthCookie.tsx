@@ -37,8 +37,8 @@ const OAuthCookie = () => {
 
   return (
     <div className='space-y-6 p-4'>
-      <main className='flex h-full w-full flex-col justify-center gap-5'>
-        <div className='mx-auto flex w-[600px] flex-col items-center'>
+      <main className='flex h-full w-full flex-col items-center justify-center gap-5'>
+        <div className='flex w-[600px] flex-col items-center'>
           {nickname ? (
             <div className='flex gap-5'>
               <button
