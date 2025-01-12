@@ -21,10 +21,10 @@ const RedirectPage = () => {
   const postCodeWithCookie = usePostCodeWithCookieApi(domain);
 
   useEffect(() => {
-    if (code && tokenType) {
-      if (tokenType === 1) postCode(code);
-      else if (tokenType === 2) postCodeWithAuthorization(code);
-      else postCodeWithCookie(code);
+    if (code) {
+      if (tokenType === 0) postCode(code);
+      else if (tokenType === 1) postCodeWithCookie(code);
+      else postCodeWithAuthorization(code);
     }
   }, [code]);
 

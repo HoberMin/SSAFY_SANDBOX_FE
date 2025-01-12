@@ -3,7 +3,7 @@ import { KyRequest } from 'ky';
 import { useNavigate } from 'react-router-dom';
 
 import { toast } from '@/components/toast/use-toast';
-import useDomainStore, { Domain, useTokenTypeStore } from '@/store';
+import useDomainStore, { Domain } from '@/store';
 
 import {
   ApiClient,
@@ -72,19 +72,18 @@ const postCodeWithCookie = async (
 
 export const usePostCodeApi = (domain: Domain) => {
   const navigate = useNavigate();
-  const { tokenType } = useTokenTypeStore();
   const { mutate } = useMutation({
     mutationFn: (code: string) => postCode(code, domain),
     onSuccess: (res: TokenResponse) => {
       accessToken = res.accessToken;
-      navigate(`/oauth/${tokenType}`);
+      navigate(`/oauth`);
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: '인가 코드 전송 실패!',
       });
-      navigate(`/oauth/${tokenType}`);
+      navigate(`/oauth`);
     },
   });
 
@@ -93,21 +92,20 @@ export const usePostCodeApi = (domain: Domain) => {
 
 export const usePostCodeWithAuthorizationApi = (domain: Domain) => {
   const navigate = useNavigate();
-  const { tokenType } = useTokenTypeStore();
   const { mutate } = useMutation({
     mutationFn: (code: string) => postCodeWithAuthorization(code, domain),
     onSuccess: (res: TokenWithAuthorizationResponse) => {
       accessToken = res.accessToken;
       localStorage.setItem('refreshToken-storage', res.refreshToken);
 
-      navigate(`/oauth/${tokenType}`);
+      navigate(`/oauth`);
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: '인가 코드 전송 실패!',
       });
-      navigate(`/oauth/${tokenType}`);
+      navigate(`/oauth`);
     },
   });
 
@@ -116,18 +114,17 @@ export const usePostCodeWithAuthorizationApi = (domain: Domain) => {
 
 export const usePostCodeWithCookieApi = (domain: Domain) => {
   const navigate = useNavigate();
-  const { tokenType } = useTokenTypeStore();
   const { mutate } = useMutation({
     mutationFn: (code: string) => postCodeWithCookie(code, domain),
     onSuccess: () => {
-      navigate(`/oauth/${tokenType}`);
+      navigate(`/oauth`);
     },
     onError: () => {
       toast({
         variant: 'destructive',
         title: '인가 코드 전송 실패!',
       });
-      navigate(`/oauth/${tokenType}`);
+      navigate(`/oauth`);
     },
   });
 

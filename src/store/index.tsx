@@ -14,7 +14,7 @@ interface QAStore {
 }
 
 interface TokenTypeStore {
-  tokenType: number | undefined;
+  tokenType: number;
   setTokenType: (newType: number) => void;
 }
 
@@ -39,7 +39,7 @@ const useDomainStore = create(
 export const useTokenTypeStore = create(
   persist<TokenTypeStore>(
     set => ({
-      tokenType: undefined,
+      tokenType: 0,
       setTokenType: (newType: number) => set({ tokenType: newType }),
     }),
     {
