@@ -7,6 +7,7 @@ import {
   useGetImageAPI,
 } from '@/apis/imageUpload';
 import NotDomainAlertBox from '@/components/AlertBox/NotDomainAlertBox';
+import InfoModal from '@/components/InfoModal';
 import MainLayout from '@/components/MainLayout';
 import { useToast } from '@/components/toast/use-toast';
 import { Button } from '@/components/ui/button';
@@ -147,7 +148,9 @@ const FileUploader = () => {
   if (!domain) {
     return (
       <MainLayout.Root>
-        <MainLayout.Header title='이미지 전송' />
+        <MainLayout.Header title='이미지 전송'>
+          <InfoModal file='image-uploader' />
+        </MainLayout.Header>
         <MainLayout.Content>
           <NotDomainAlertBox />
         </MainLayout.Content>
@@ -168,7 +171,9 @@ const FileUploader = () => {
       <MainLayout.Header
         title='이미지 전송'
         description='이미지를 업로드하고 전송하세요.'
-      />
+      >
+        <InfoModal file='image-uploader' />
+      </MainLayout.Header>
       <MainLayout.Content>
         <div className='mx-auto flex w-full max-w-md flex-col items-center gap-6 rounded-lg bg-white p-6 shadow'>
           {renderImagePreview()}
