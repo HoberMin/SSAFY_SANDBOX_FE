@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useRef } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 import {
   getPreSignedUrlAPI,
@@ -7,6 +7,7 @@ import {
   useGetImageAPI,
 } from '@/apis/imageUpload';
 import NotDomainAlertBox from '@/components/AlertBox/NotDomainAlertBox';
+import InfoModal from '@/components/InfoModal';
 import MainLayout from '@/components/MainLayout';
 import { useToast } from '@/components/toast/use-toast';
 import { Button } from '@/components/ui/button';
@@ -18,6 +19,8 @@ const FileUploader = () => {
   const inputElement = useRef<HTMLInputElement | null>(null);
   const { domain } = useDomainStore();
   const { toast } = useToast();
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const {
     data: currentImage,
@@ -32,12 +35,7 @@ const FileUploader = () => {
   } = getPreSignedUrlAPI(domain);
 
   const putImage = putImageAPI(preSignedData?.presignedUrl || '');
-  const extractBaseUrl = (url: string) => url.split('?')[0];
-  const postImageUrl = postImageUrlAPI(
-    preSignedData?.presignedUrl
-      ? extractBaseUrl(preSignedData.presignedUrl)
-      : '',
-  );
+  const postImageUrl = postImageUrlAPI(domain);
 
   useEffect(() => {
     if (isCurrentImageError) {
@@ -59,12 +57,6 @@ const FileUploader = () => {
     }
   }, [isPresignedError]);
 
-  const handleImageRemove = () => {
-    if (inputElement.current) {
-      inputElement.current.value = '';
-    }
-  };
-
   const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -78,55 +70,63 @@ const FileUploader = () => {
       return;
     }
 
-    try {
-      putImage(file);
-      toast({
-        title: '이미지 업로드 완료',
-        description: '이미지가 성공적으로 업로드되었습니다.',
-      });
-    } catch (error) {
-      toast({
-        title: '이미지 업로드 실패',
-        description: '이미지 업로드 중 오류가 발생했습니다.',
-        variant: 'destructive',
-      });
-      handleImageRemove();
-    }
+    // 이미지 미리보기 생성
+    const reader = new FileReader();
+    reader.onload = event => {
+      setPreviewImage(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // 선택된 파일 저장
+    setSelectedFile(file);
   };
 
   const handleSubmitImage = async () => {
     try {
-      postImageUrl();
-      toast({
-        title: '이미지 전송 성공',
-        description: '이미지가 성공적으로 저장되었습니다.',
-      });
-      handleImageRemove();
+      if (selectedFile && preSignedData?.presignedUrl) {
+        // 이미지 업로드(PUT 요청)
+        await putImage(selectedFile);
+        // 이미지 URL 전송(POST 요청)
+        await postImageUrl(preSignedData.presignedUrl.split('?')[0] || '');
+
+        toast({
+          title: '이미지 전송 성공',
+          description: '이미지가 성공적으로 저장되었습니다.',
+        });
+      } else {
+        toast({
+          title: '이미지 선택 필요',
+          description: '업로드할 이미지를 먼저 선택해주세요.',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       toast({
         title: '이미지 전송 실패',
         description: '이미지 저장 중 오류가 발생했습니다.',
         variant: 'destructive',
       });
-      console.error('Save error:', error);
     }
   };
 
   const renderImagePreview = () => {
-    if (isLoadingImage) {
-      return <div className='loading-spinner' />;
-    }
-
-    if (preSignedData?.presignedUrl) {
+    // 사용자가 선택한 이미지가 있으면 해당 이미지를 미리보기로 표시
+    if (previewImage) {
       return (
         <img
-          src={preSignedData.presignedUrl.split('?')[0]}
-          alt='업로드된 이미지'
+          src={previewImage}
+          alt='선택된 이미지'
           className='h-32 w-32 rounded-lg border border-gray-200 object-cover shadow-sm'
         />
       );
     }
 
+    // 선택된 이미지가 없고 불러오는 중이면 로딩 표시
+    if (isLoadingImage) {
+      return <div className='loading-spinner' />;
+    }
+
+    // 기존 저장된 이미지가 있으면 표시
     if (currentImage?.imageUrl) {
       return (
         <img
@@ -137,6 +137,7 @@ const FileUploader = () => {
       );
     }
 
+    // 아무 이미지도 없으면 빈 미리보기 영역 표시
     return (
       <div className='flex h-32 w-32 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-400'>
         <span>이미지 미리보기</span>
@@ -147,7 +148,9 @@ const FileUploader = () => {
   if (!domain) {
     return (
       <MainLayout.Root>
-        <MainLayout.Header title='이미지 전송' />
+        <MainLayout.Header title='이미지 전송'>
+          <InfoModal file='image-uploader' />
+        </MainLayout.Header>
         <MainLayout.Content>
           <NotDomainAlertBox />
         </MainLayout.Content>
@@ -158,14 +161,19 @@ const FileUploader = () => {
   const isImageSelectDisabled = isPresignedError || isLoadingPresigned;
 
   const isUploadDisabled =
-    !preSignedData?.presignedUrl || isLoadingPresigned || isPresignedError;
+    !preSignedData?.presignedUrl ||
+    isLoadingPresigned ||
+    isPresignedError ||
+    !selectedFile;
 
   return (
     <MainLayout.Root>
       <MainLayout.Header
         title='이미지 전송'
         description='이미지를 업로드하고 전송하세요.'
-      />
+      >
+        <InfoModal file='image-uploader' />
+      </MainLayout.Header>
       <MainLayout.Content>
         <div className='mx-auto flex w-full max-w-md flex-col items-center gap-6 rounded-lg bg-white p-6 shadow'>
           {renderImagePreview()}
@@ -180,18 +188,6 @@ const FileUploader = () => {
               }`}
             >
               이미지 선택
-            </Label>
-            <Label
-              onClick={
-                preSignedData?.presignedUrl ? handleImageRemove : undefined
-              }
-              className={`rounded-md border px-4 py-2 text-sm font-medium transition ${
-                preSignedData?.presignedUrl
-                  ? 'cursor-pointer text-red-500 hover:bg-red-50'
-                  : 'cursor-not-allowed text-gray-400'
-              }`}
-            >
-              이미지 삭제
             </Label>
           </div>
 
