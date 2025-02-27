@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Domain } from '@/store';
 
@@ -35,12 +35,13 @@ const putPresignedURL = async (preSignedURL: string, file: File) =>
     },
   });
 
-const postImageUpload = async (domain: Domain) =>
+const postImageUpload = async (domain: Domain, imageUrl: string) =>
   await fetch(`${domain}/upload/image`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify({ imageUrl }),
   });
 
 export const useGetImageAPI = (domain: Domain) =>
@@ -51,7 +52,7 @@ export const useGetImageAPI = (domain: Domain) =>
 
 export const postImageUrlAPI = (domain: Domain) => {
   const { mutate } = useMutation({
-    mutationFn: () => postImageUpload(domain),
+    mutationFn: (imageUrl: string) => postImageUpload(domain, imageUrl),
   });
 
   return mutate;
@@ -64,8 +65,12 @@ export const getPreSignedUrlAPI = (domain: Domain) =>
   });
 
 export const putImageAPI = (presignedUrl: string) => {
+  const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: (file: File) => putPresignedURL(presignedUrl, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['image'] });
+    },
   });
 
   return mutate;
